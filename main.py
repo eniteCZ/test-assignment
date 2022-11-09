@@ -52,13 +52,13 @@ parser.add_argument('--output-dir', type=str, default="results/",
 parser.add_argument('--max-length', type=int, default=10,
 					help='Maximum sequence length (default: 10)')
 parser.add_argument('--tfr', type=float, default=0.5,
-					help='Teacher Forcing Ratio (default: 1.0)')
+					help='Teacher Forcing Ratio (default: 0.5)')
 parser.add_argument('--lr', type=float, default=0.01,
 					help='Learning Rate (default: 0.01)')
 parser.add_argument('--drop', type=float, default=0.1,
 					help='Dropout Probability (default: 0.1)')
-parser.add_argument('--hidden-size', type=int, default=128,
-					help='Size of hidden layer (default: 128)')
+parser.add_argument('--hidden-size', type=int, default=126,
+					help='Size of hidden layer (default: 126)')
 parser.add_argument('--n-iters', type=int, default=10000,
 					help='Number of Iterations (default: 10000)')
 parser.add_argument('--plot-every', type=int, default=100,
@@ -116,8 +116,7 @@ def main():
 	else:
 		input_lang, output_lang, pairs = prepareData(args.train_file)
 		print(random.choice(pairs))
-
-		model = EncoderDecoder(args.hidden_size, input_lang.n_words, output_lang.n_words, args.drop, args.tfr, args.max_length, args.lr, True, args.bidirectional, args.dot, args.bilinear)
+		model = EncoderDecoder(args.hidden_size, input_lang.n_words, output_lang.n_words, args.drop, args.tfr, args.max_length, args.lr, args.simple, args.bidirectional, args.dot, args.bilinear)
 		loss = model.trainIters(pairs, input_lang, output_lang, args.n_iters, print_every=args.print_every, plot_every=args.plot_every)
 		model.evaluatePairs(pairs)
 		model.save(args.output_dir)

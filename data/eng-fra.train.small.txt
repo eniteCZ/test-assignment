@@ -9157,3 +9157,4 @@ She is pleased with the dress.	Elle est satisfaite par la robe.
 We're going to need some help.	Nous allons avoir besoin d'aide.
 I'm very glad to see you again.	Je suis très content de te revoir.
 You're demented.	Vous êtes fous.
+Do you want to cancel the meeting?	Voulez-vous annuler la réunion ?

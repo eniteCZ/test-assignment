@@ -24,7 +24,7 @@ def define_simple_decoder(hidden_size, input_vocab_len, output_vocab_len, max_le
     decoder = None
 
     # Write your implementation here
-    decoder = DecoderRNN(hidden_size, output_vocab_len).to(device)
+
     # End of implementation
 
     return decoder
@@ -49,10 +49,10 @@ def run_simple_decoder(simple_decoder, decoder_input, encoder_hidden, decoder_hi
     results = None
 
     # Write your implementation here
-    results = simple_decoder(decoder_input, decoder_hidden)
+
     # End of implementation
 
-    return results
+    return results  # Shape should be
 
 
 # PART 2.2
@@ -70,9 +70,7 @@ class BidirectionalEncoderRNN(nn.Module):
         super(BidirectionalEncoderRNN, self).__init__()
 
         # Write your implementation here
-        self.hidden_size = hidden_size
-        self.embedding = nn.Embedding(input_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size, bidirectional=True)
+
         # End of implementation
 
     def forward(self, input, hidden):
@@ -83,15 +81,12 @@ class BidirectionalEncoderRNN(nn.Module):
 
         :return: output, hidden
 
-            Hint: Don't correct the dimensions of the return values at this stage.
-                    Function skeletons for doing this are provided later.
+            Hint: Don't correct the dimensions of the return values at this stage. Function skeletons for doing this are provided later.
+            Sanity check: Shape of "output" should be [1, 1, 256] and shape of "hidden" should be [2, 1, 128]
         """
 
         # Write your implementation here
-        embedded = self.embedding(input).view(1, 1, -1)
-        output = embedded
-        output, hidden = self.gru(output, hidden)
-        return output, hidden
+
         # End of implementation
 
     def initHidden(self):
@@ -105,13 +100,13 @@ def define_bi_encoder(input_vocab_len, hidden_size):
 
     :param input_vocab_len:
     :param hidden_size:
-    :return:
+    :return: bidirectional encoder RNN
     """
 
     encoder = None
 
     # Write your implementation here
-    encoder = BidirectionalEncoderRNN(input_vocab_len, hidden_size)
+    
     # End of implementation
 
     return encoder
@@ -124,14 +119,14 @@ def fix_bi_encoder_output_dim(encoder_output, hidden_size):
 
     :param encoder_output:
     :param hidden_size:
-    :return:
+    :return: output
+
+    Sanity check: Shape of "output" should be [1, 1, 128]
     """
     output = None
 
     # Write your implementation here
-    output_sum = encoder_output[0, 0, :hidden_size] + encoder_output[0, 0, hidden_size:]
-    output = encoder_output[:,:,:hidden_size]
-    output[0,0] = output_sum
+    
     # End of implementation
 
     return output
@@ -143,13 +138,15 @@ def fix_bi_encoder_hidden_dim(encoder_hidden):
     """
 
     :param encoder_hidden:
-    :return:
+    :return: output
+
+    Sanity check: Shape of "output" should be [1, 1, 128]
     """
 
     output = None
 
     # Write your implementation here
-    output = encoder_hidden[:1,:,:]
+    
     # End of implementation
 
     return output
@@ -157,44 +154,24 @@ def fix_bi_encoder_hidden_dim(encoder_hidden):
 
 # PART 2.2
 class AttnDecoderRNNDot(nn.Module):
-    """ Write class definition for AttnDecoderRNNDot
-        Hint: Modify AttnDecoderRNN to use dot attention
+    """ 
+    Write class definition for AttnDecoderRNNDot
+    Hint: Modify AttnDecoderRNN to use dot attention
     """
 
     def __init__(self, hidden_size, output_size, dropout_p=0.1, max_length=10):
         super(AttnDecoderRNNDot, self).__init__()
 
         # Write your implementation here
-        self.hidden_size = hidden_size
-        self.output_size = output_size
-        self.dropout_p = dropout_p
-        self.max_length = max_length
 
-        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
-        self.attn = nn.Linear(self.hidden_size * 2, self.max_length)
-        self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
-        self.dropout = nn.Dropout(self.dropout_p)
-        self.gru = nn.GRU(self.hidden_size, self.hidden_size)
-        self.out = nn.Linear(self.hidden_size, self.output_size)
         # End of implementation
 
     def forward(self, input, hidden, encoder_outputs):
-
+        """
+        Sanity check: Shape of "attn_weights" should be [1, 10]
+        """
         # Write your implementation here
-        embedded = self.embedding(input).view(1, 1, -1)
-        embedded = self.dropout(embedded)
-        attn_weights = F.softmax(torch.matmul(hidden[0], encoder_outputs.T), dim=1)
 
-        attn_applied = torch.bmm(attn_weights.unsqueeze(0),
-                                 encoder_outputs.unsqueeze(0))
-        output = torch.cat((embedded[0], attn_applied[0]), 1)
-        output = self.attn_combine(output).unsqueeze(0)
-
-        output = F.relu(output)
-        output, hidden = self.gru(output, hidden)
-
-        output = F.log_softmax(self.out(output[0]), dim=1)
-        return output, hidden, attn_weights
         # End of implementation
 
     def initHidden(self):
@@ -211,40 +188,17 @@ class AttnDecoderRNNBilinear(nn.Module):
         super(AttnDecoderRNNBilinear, self).__init__()
 
         # Write your implementation here
-        self.hidden_size = hidden_size
-        self.output_size = output_size
-        self.dropout_p = dropout_p
-        self.max_length = max_length
-
-        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
-        self.bilinear_projection = nn.Linear(self.hidden_size, self.hidden_size)
-        self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
-        self.dropout = nn.Dropout(self.dropout_p)
-        self.gru = nn.GRU(self.hidden_size, self.hidden_size)
-        self.out = nn.Linear(self.hidden_size, self.output_size)
+        
         # End of implementation
 
     def forward(self, input, hidden, encoder_outputs):
+        """
+        Sanity check: Shape of "attn_weights" should be [1, 10]
+        """
         # Write your implementation here
-        embedded = self.embedding(input).view(1, 1, -1)
-        embedded = self.dropout(embedded)
-        attn_weights = F.softmax(torch.matmul(self.bilinear_projection(hidden)[0], encoder_outputs.T), dim=1)
-
-        attn_applied = torch.bmm(attn_weights.unsqueeze(0),
-                                 encoder_outputs.unsqueeze(0))
-
-        output = torch.cat((embedded[0], attn_applied[0]), 1)
-        output = self.attn_combine(output).unsqueeze(0)
-
-        output = F.relu(output)
-        output, hidden = self.gru(output, hidden)
-
-        output = F.log_softmax(self.out(output[0]), dim=1)
-        return output, hidden, attn_weights
+        
         # End of implementation
+        return
 
     def initHidden(self):
         return torch.zeros(1, 1, self.hidden_size, device=device)
-
-
-# PART 3.1 goes below this comment

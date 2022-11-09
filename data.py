@@ -72,6 +72,9 @@ def prepareData(file_name, lang1="eng", lang2="fra", reverse=True):
 	for pair in pairs:
 		input_lang.addSentence(pair[0])
 		output_lang.addSentence(pair[1])
+		# print(pair)
+		# print(len(pair))
+		# break
 	print("Counted words:")
 
 	print(input_lang.name, input_lang.n_words)

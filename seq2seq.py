@@ -3,7 +3,6 @@ from torch import optim
 from model import EncoderRNN, AttnDecoderRNN, DecoderRNN
 import cloudpickle
 from data import SOS_token, EOS_token, normalizeString
-
 import torch
 import torch.nn as nn
 import time
@@ -61,7 +60,7 @@ class EncoderDecoder(object):
 			self.encoder = EncoderRNN(input_vocab_len, hidden_size).to(device)
 
 		if self.simple:
-			
+
 			self.decoder = code.define_simple_decoder(hidden_size, input_vocab_len, output_vocab_len, max_length).to(device)
 		else:
 			if self.dot:
